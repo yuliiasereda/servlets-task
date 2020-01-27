@@ -26,10 +26,11 @@ public class UserServlet extends HttpServlet {
 
   @Override
   protected void doGet(
-      HttpServletRequest req, HttpServletResponse resp) {
+      HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String userEmail = (String) req.getSession().getAttribute("userEmail");
     User userByEmail = userService.getUserByEmail(userEmail);
     req.setAttribute("user", userByEmail);
+    req.getRequestDispatcher("/WEB-INF/user.jsp").forward(req, resp);
     log.info("Get user");
   }
 }

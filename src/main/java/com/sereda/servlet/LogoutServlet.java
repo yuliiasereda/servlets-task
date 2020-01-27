@@ -1,13 +1,6 @@
 package com.sereda.servlet;
 
-import com.google.gson.Gson;
-import com.sereda.model.User;
-import com.sereda.service.UserService;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

@@ -1,8 +1,9 @@
 package com.sereda.service;
 
+import com.sereda.exception.AuthenticationException;
 import com.sereda.model.LoginStatus;
-import java.util.List;
 import com.sereda.model.User;
+import java.util.List;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j;
 
@@ -62,15 +63,15 @@ public class UserService {
     }
   }
 
-  public boolean loggedInUser(String email, String password) {
+  public User authenticate(String email, String password) {
     User user = getUserByEmail(email);
     if (user.getPassword().equals(password)) {
       user.setStatus(LoginStatus.LOGGED_IN);
-      return true;
     } else {
-      log.info("This user has another password");
-      throw new RuntimeException();
+      log.warn("This user has another password");
+      throw new AuthenticationException();
     }
+    return user;
   }
 
   public List<User> getUsers() {
@@ -78,7 +79,8 @@ public class UserService {
   }
 
   public User getUserByEmail(String email) {
-    Optional<User> first = users.stream().filter(user -> email.equals(user.getEmail()))
+    Optional<User> first = users.stream()
+        .filter(user -> email.equals(user.getEmail()))
         .findFirst();
     return first.orElseThrow(RuntimeException::new);
   }

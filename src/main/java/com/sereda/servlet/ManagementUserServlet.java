@@ -1,7 +1,7 @@
 package com.sereda.servlet;
 
+import com.sereda.dto.UpdateUserDto;
 import com.sereda.helper.JsonHelper;
-import com.sereda.model.UpdateUserDto;
 import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;

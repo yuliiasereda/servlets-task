@@ -1,7 +1,7 @@
 package com.sereda.helper;
 
 import com.google.gson.Gson;
-import com.sereda.model.UpdateUserDto;
+import com.sereda.dto.UpdateUserDto;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class JsonHelper {
 
-  public static void getJsonOfObject(HttpServletResponse resp, Object obj) throws IOException {
+  public static void sendResponse(HttpServletResponse resp, Object obj) throws IOException {
     String userJson = new Gson().toJson(obj);
     PrintWriter out = resp.getWriter();
     resp.setContentType("application/json");

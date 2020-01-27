@@ -1,8 +1,5 @@
-package com.sereda.model;
+package com.sereda.dto;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

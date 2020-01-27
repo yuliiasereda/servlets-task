@@ -1,7 +1,10 @@
 package com.sereda.servlet;
 
+import com.sereda.dto.AuthenticateUserDto;
+import com.sereda.dto.UpdateUserDto;
+import com.sereda.exception.AuthenticationException;
 import com.sereda.helper.JsonHelper;
-import com.sereda.model.UpdateUserDto;
+import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;
 import javax.servlet.ServletContext;
@@ -33,14 +36,19 @@ public class LoginServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPut(
-      HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    UpdateUserDto user = JsonHelper.getUserObjectFromJson(JsonHelper.inputStreamToString(req.getInputStream()));
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    UpdateUserDto user = JsonHelper
+        .getUserObjectFromJson(JsonHelper.inputStreamToString(req.getInputStream()));
     String email = user.getEmail();
     String password = user.getPassword();
-    if (userService.loggedInUser(email, password)) {
-      log.info("User is logged");
+    try {
+      User authenticate = userService.authenticate(email, password);
+      req.getSession().setAttribute("userEmail", email);
+      log.info("User is logged in");
+      JsonHelper.sendResponse(resp, new AuthenticateUserDto(authenticate.getRole().getHomeUrl()));
+    } catch (AuthenticationException e) {
+      log.warn("User cannot be logged in");
+      resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
-    req.getSession().setAttribute("userEmail", email);
   }
 }

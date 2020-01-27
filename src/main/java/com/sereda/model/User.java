@@ -1,9 +1,5 @@
 package com.sereda.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,23 +13,23 @@ public class User {
   private String email;
   private String password;
   private LoginStatus status;
-  private List<Role> roles;
+  private Role role;
 
   @Builder
-  public User(String name, String email, String password){
+  public User(String name, String email, String password) {
     this.name = name;
     this.email = email;
     this.password = password;
     this.status = LoginStatus.NON_LOGGED_IN;
-    this.roles = Arrays.asList(Role.USER);
+    this.role = Role.USER;
   }
 
   @Builder
-  public User(String name, String email, String password, ArrayList<Role> roles){
+  public User(String name, String email, String password, Role role) {
     this.name = name;
     this.email = email;
     this.password = password;
     this.status = LoginStatus.NON_LOGGED_IN;
-    this.roles = roles;
+    this.role = role;
   }
 }
