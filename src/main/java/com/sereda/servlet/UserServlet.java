@@ -1,5 +1,11 @@
 package com.sereda.servlet;
 
+import static com.sereda.utils.EndpointConstants.EMAIL_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.USER_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.USER_HOME_URL;
+import static com.sereda.utils.EndpointConstants.USER_JSP;
+import static com.sereda.utils.EndpointConstants.USER_SERVICE_ATTRIBUTE;
+
 import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;
@@ -9,10 +15,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j
-@WebServlet("/user/home")
+@Slf4j
+@WebServlet(USER_HOME_URL)
 public class UserServlet extends HttpServlet {
 
   private UserService userService;
@@ -21,16 +27,16 @@ public class UserServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     ServletContext servletContext = getServletContext();
-    userService = (UserService) servletContext.getAttribute("user-service");
+    userService = (UserService) servletContext.getAttribute(USER_SERVICE_ATTRIBUTE);
   }
 
   @Override
   protected void doGet(
       HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String userEmail = (String) req.getSession().getAttribute("userEmail");
+    String userEmail = (String) req.getSession().getAttribute(EMAIL_ATTRIBUTE);
     User userByEmail = userService.getUserByEmail(userEmail);
-    req.setAttribute("user", userByEmail);
-    req.getRequestDispatcher("/WEB-INF/user.jsp").forward(req, resp);
+    req.setAttribute(USER_ATTRIBUTE, userByEmail);
+    req.getRequestDispatcher(USER_JSP).forward(req, resp);
     log.info("Get user");
   }
 }

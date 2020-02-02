@@ -1,5 +1,11 @@
 package com.sereda.servlet;
 
+import static com.sereda.utils.EndpointConstants.EMAIL_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_JSP;
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_USER_URL;
+import static com.sereda.utils.EndpointConstants.USERS_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.USER_SERVICE_ATTRIBUTE;
+
 import com.sereda.dto.UpdateUserDto;
 import com.sereda.helper.JsonHelper;
 import com.sereda.model.User;
@@ -12,10 +18,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j
-@WebServlet("/management/user")
+@Slf4j
+@WebServlet(MANAGEMENT_USER_URL)
 public class ManagementUserServlet extends HttpServlet {
 
   UserService userService;
@@ -24,43 +30,41 @@ public class ManagementUserServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     ServletContext servletContext = getServletContext();
-    userService = (UserService) servletContext.getAttribute("user-service");
+    userService = (UserService) servletContext.getAttribute(USER_SERVICE_ATTRIBUTE);
   }
 
   @Override
   protected void doPost(
       HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    List<User> users = userService.getUsers();
-    req.setAttribute("users", users);
-    req.getRequestDispatcher("/WEB-INF/management.jsp").forward(req, resp);
-    log.info("Get all registered users");
+    log.info("Getting all registered users");
+    List<User> users = userService.fetchAllUsers();
+    req.setAttribute(USERS_ATTRIBUTE, users);
+    req.getRequestDispatcher(MANAGEMENT_JSP).forward(req, resp);
   }
 
   @Override
   protected void doPut(
       HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    UpdateUserDto user = JsonHelper
-        .getUserObjectFromJson(JsonHelper.inputStreamToString(req.getInputStream()));
-    String email = user.getEmail();
-    String oldEmail = user.getOldEmail();
-    String name = user.getName();
-    String password = user.getPassword();
-    userService.updateUser(name, email, password, oldEmail);
+    UpdateUserDto userDto = JsonHelper.getUserObjectFromInputStream(req.getInputStream());
+    String name = userDto.getName();
+    String email = userDto.getEmail();
+    String oldEmail = userDto.getOldEmail();
+    String password = userDto.getPassword();
+    userService.updateUser(new User(name, email, password), oldEmail);
   }
 
   @Override
   protected void doDelete(
       HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    UpdateUserDto user = JsonHelper
-        .getUserObjectFromJson(JsonHelper.inputStreamToString(req.getInputStream()));
-    String email = user.getEmail();
-    userService.deleteUser(email);
+    UpdateUserDto userDto = JsonHelper.getUserObjectFromInputStream(req.getInputStream());
+    User user = userService.getUserByEmail(userDto.getEmail());
+    userService.deleteUser(user);
   }
 
   @Override
   protected void doGet(
       HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    String email = req.getParameter("email");
+    String email = req.getParameter(EMAIL_ATTRIBUTE);
     userService.getUserByEmail(email);
   }
 }

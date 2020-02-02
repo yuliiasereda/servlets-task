@@ -32,11 +32,11 @@
         </div>
     </section>
 </div>
-</section>
-</div>
 
 <script src="../vendor/jquery/jquery.min.js"></script>
-<script>var ctx = "${pageContext.request.contextPath}"</script>
+<script>
+  var ctx = "${pageContext.request.contextPath}"
+</script>
 <script src="../js/modal.js"></script>
 <script src="../js/update.js"></script>
 <script src="../js/delete.js"></script>

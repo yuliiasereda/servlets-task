@@ -1,5 +1,11 @@
 package com.sereda.servlet;
 
+import static com.sereda.utils.EndpointConstants.SIGNUP_JSP;
+import static com.sereda.utils.EndpointConstants.USER_LOGIN_URL;
+import static com.sereda.utils.EndpointConstants.USER_SERVICE_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.USER_SIGNUP_URL;
+
+import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;
 import javax.servlet.ServletContext;
@@ -8,10 +14,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j
-@WebServlet("/user/signup")
+@Slf4j
+@WebServlet(USER_SIGNUP_URL)
 public class RegisterServlet extends HttpServlet {
 
   UserService userService;
@@ -20,13 +26,13 @@ public class RegisterServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     ServletContext servletContext = getServletContext();
-    userService = (UserService) servletContext.getAttribute("user-service");
+    userService = (UserService) servletContext.getAttribute(USER_SERVICE_ATTRIBUTE);
   }
 
   @Override
   protected void doGet(
       HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    req.getRequestDispatcher("/WEB-INF/signup.jsp").forward(req, resp);
+    req.getRequestDispatcher(SIGNUP_JSP).forward(req, resp);
     log.info("Get user");
   }
 
@@ -49,9 +55,10 @@ public class RegisterServlet extends HttpServlet {
     String email = req.getParameter("email");
     String name = req.getParameter("name");
     String password = req.getParameter("pass");
+    User user = new User(name, email, password);
     try {
-      userService.addUser(name, email, password);
-      resp.sendRedirect(req.getContextPath() + "/user/login");
+      userService.createUser(user);
+      resp.sendRedirect(req.getContextPath() + USER_LOGIN_URL);
       log.info("Register user");
     } catch (RuntimeException e) {
       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

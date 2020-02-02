@@ -1,66 +1,61 @@
 package com.sereda.service;
 
+import com.sereda.dao.Storage;
 import com.sereda.exception.AuthenticationException;
 import com.sereda.model.LoginStatus;
 import com.sereda.model.User;
 import java.util.List;
-import java.util.Optional;
-import lombok.extern.log4j.Log4j;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j
+@Slf4j
+@AllArgsConstructor
 public class UserService {
 
-  List<User> users;
+  private Storage storage;
 
-  public UserService(List<User> users) {
-    this.users = users;
-  }
-
-  public User addUser(String name, String email, String password) {
-    if (name.equals("") || email.equals("") || password.equals("")) {
-      log.info("The name, email or password is empty");
-      throw new RuntimeException();
-    }
-    if (hasUser(email)) {
+  public void createUser(User user) {
+    validate(user);
+    if (storage.isEmailUsed(user.getEmail())) {
       log.info("This user already exists");
       throw new RuntimeException();
+    }
+    storage.addUser(user);
+  }
+
+  public void deleteUser(User user) {
+    validate(user);
+    if (!storage.isEmailUsed(user.getEmail())) {
+      log.info("This user doesn't exist");
+      throw new RuntimeException();
     } else {
-      User user = new User(name, email, password);
-      users.add(user);
-      return user;
+      storage.removeUser(user);
     }
   }
 
-  public User updateUser(String name, String email, String password, String oldEmail) {
-    if (email.equals("")) {
-      log.info("The email is empty");
+  public void updateUser(User updatedUser, String oldEmail) {
+    validate(updatedUser);
+    if (!storage.isEmailUsed(oldEmail)) {
+      log.info("This user doesn't exists");
       throw new RuntimeException();
     }
-    if (!hasUser(oldEmail)) {
-      log.info("This user doesn't exist");
+    if (storage.isEmailUsed(updatedUser.getEmail())) {
+      log.info("This email already exists");
       throw new RuntimeException();
     } else {
       User user = getUserByEmail(oldEmail);
-      user.setName(name == null ? user.getName() : name);
-      user.setPassword(password == null ? user.getPassword() : password);
-      user.setEmail(email == null ? oldEmail : email);
-      return user;
+      user.setName(updatedUser.getName());
+      user.setPassword(updatedUser.getPassword());
+      user.setEmail(updatedUser.getEmail());
     }
   }
 
-  public User deleteUser(String email) {
-    if (email.equals("")) {
-      log.info("The email is empty");
-      throw new RuntimeException();
-    }
-    if (!hasUser(email)) {
-      log.info("This user doesn't exist");
-      throw new RuntimeException();
-    } else {
-      User user = getUserByEmail(email);
-      users.remove(user);
-      return user;
-    }
+  public List<User> fetchAllUsers() {
+    return storage.fetchAllUsers();
+  }
+
+  public User getUserByEmail(String email){
+    return storage.getUserByEmail(email).orElseThrow(RuntimeException::new);
   }
 
   public User authenticate(String email, String password) {
@@ -74,19 +69,10 @@ public class UserService {
     return user;
   }
 
-  public List<User> getUsers() {
-    return users;
-  }
-
-  public User getUserByEmail(String email) {
-    Optional<User> first = users.stream()
-        .filter(user -> email.equals(user.getEmail()))
-        .findFirst();
-    return first.orElseThrow(RuntimeException::new);
-  }
-
-  private boolean hasUser(String email) {
-    return users.stream()
-        .anyMatch(user -> email.equals(user.getEmail()));
+  private void validate(User user) {
+    if (user.getName().isEmpty() || user.getEmail().isEmpty() || user.getPassword().isEmpty()) {
+      log.info("The name, email or password is empty");
+      throw new RuntimeException();
+    }
   }
 }

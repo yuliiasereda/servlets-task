@@ -1,5 +1,12 @@
 package com.sereda.filter;
 
+import static com.sereda.utils.EndpointConstants.EMAIL_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_USERS_URL;
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_USER_URL;
+import static com.sereda.utils.EndpointConstants.USER_HOME_URL;
+import static com.sereda.utils.EndpointConstants.USER_LOGIN_URL;
+import static com.sereda.utils.EndpointConstants.USER_SERVICE_ATTRIBUTE;
+
 import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;
@@ -14,7 +21,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebFilter(urlPatterns = {"/user/home", "/management/users", "/management/user"})
+@WebFilter(urlPatterns = {USER_HOME_URL, MANAGEMENT_USERS_URL, MANAGEMENT_USER_URL})
 public class SessionCheckFilter implements Filter {
 
   private String contextPath;
@@ -23,7 +30,7 @@ public class SessionCheckFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     ServletContext servletContext = filterConfig.getServletContext();
-    userService = (UserService) servletContext.getAttribute("user-service");
+    userService = (UserService) servletContext.getAttribute(USER_SERVICE_ATTRIBUTE);
     contextPath = filterConfig.getServletContext().getContextPath();
   }
 
@@ -34,10 +41,10 @@ public class SessionCheckFilter implements Filter {
     HttpServletResponse res = (HttpServletResponse) servletResponse;
 
 
-    String email = (String) req.getSession().getAttribute("userEmail");
+    String email = (String) req.getSession().getAttribute(EMAIL_ATTRIBUTE);
     User user = userService.getUserByEmail(email);
     if (user == null) {
-      res.sendRedirect(contextPath + "/user/login");
+      res.sendRedirect(contextPath + USER_LOGIN_URL);
     } else {
       filterChain.doFilter(servletRequest, servletResponse);
     }

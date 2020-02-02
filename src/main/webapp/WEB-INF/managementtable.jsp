@@ -28,7 +28,7 @@
                 <div class="form-group form-button">
                     <form id="delete-form">
                         <button id="deleteButton"
-                                onclick="deleteBtn('${user.email}')">
+                                onclick="deleteBtn('${user.email}', '${user.name}', '${user.password}')">
                             Delete
                         </button>
                     </form>

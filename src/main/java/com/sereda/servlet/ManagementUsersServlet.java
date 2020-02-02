@@ -1,5 +1,10 @@
 package com.sereda.servlet;
 
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_JSP;
+import static com.sereda.utils.EndpointConstants.MANAGEMENT_USERS_URL;
+import static com.sereda.utils.EndpointConstants.USERS_ATTRIBUTE;
+import static com.sereda.utils.EndpointConstants.USER_SERVICE_ATTRIBUTE;
+
 import com.sereda.model.User;
 import com.sereda.service.UserService;
 import java.io.IOException;
@@ -10,10 +15,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j
-@WebServlet("/management/users")
+@Slf4j
+@WebServlet(MANAGEMENT_USERS_URL)
 public class ManagementUsersServlet extends HttpServlet {
 
   UserService userService;
@@ -22,15 +27,15 @@ public class ManagementUsersServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     ServletContext servletContext = getServletContext();
-    userService = (UserService) servletContext.getAttribute("user-service");
+    userService = (UserService) servletContext.getAttribute(USER_SERVICE_ATTRIBUTE);
   }
 
   @Override
   protected void doGet(
       HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    List<User> users = userService.getUsers();
-    req.setAttribute("users", users);
-    req.getRequestDispatcher("/WEB-INF/management.jsp").forward(req, resp);
+    List<User> users = userService.fetchAllUsers();
+    req.setAttribute(USERS_ATTRIBUTE, users);
+    req.getRequestDispatcher(MANAGEMENT_JSP).forward(req, resp);
     log.info("Get all registered users");
   }
 }
